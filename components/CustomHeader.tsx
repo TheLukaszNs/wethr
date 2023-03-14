@@ -1,29 +1,32 @@
-import { ComponentProps } from "react";
-import { Appbar, Text } from "react-native-paper";
-import { Stack, usePathname, useRouter } from "expo-router";
+import { useState } from "react";
+import { TextInput, View } from "react-native";
+import {
+  ActivityIndicator,
+  Appbar,
+  Switch,
+  Text,
+  Tooltip,
+  useTheme,
+} from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-type ExcludeFunction<T> = T extends (...args: any[]) => any ? never : T;
+type Props = {
+  city: string;
+  onCityChange: (city: string) => void;
+};
 
-type Props = Parameters<
-  ExcludeFunction<ComponentProps<typeof Stack>["screenOptions"]>["header"]
->[0];
-
-export const CustomHeader = ({ navigation, back, route, options }: Props) => {
-  const pathname = usePathname();
-  const router = useRouter();
+export const CustomHeader = ({ city, onCityChange }: Props) => {
+  const theme = useTheme();
 
   return (
     <Appbar.Header>
-      {back && <Appbar.BackAction onPress={navigation.goBack} />}
       <Appbar.Content
-        title={options.title ?? route.name}
+        title={city}
         titleStyle={{
-          fontWeight: "bold",
+          fontWeight: "700",
+          fontSize: 24,
         }}
       />
-      {pathname === "/" && (
-        <Appbar.Action icon="cog" onPress={() => router.push("settings")} />
-      )}
     </Appbar.Header>
   );
 };

@@ -1,17 +1,25 @@
-import { Slot, Stack } from "expo-router";
-import { Provider as PaperProvider, Button, Appbar } from "react-native-paper";
+import { Stack } from "expo-router";
+import { Provider as PaperProvider } from "react-native-paper";
 import { CustomHeader } from "../components/CustomHeader";
+import { StatusBar } from "expo-status-bar";
+import { QueryClient } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query/build/lib/QueryClientProvider";
+
+const queryClient = new QueryClient();
 
 export default function Layout() {
   return (
     <>
-      <PaperProvider>
-        <Stack
-          screenOptions={{
-            header: (props) => <CustomHeader {...props} />,
-          }}
-        />
-      </PaperProvider>
+      <QueryClientProvider client={queryClient}>
+        <PaperProvider>
+          <Stack
+            screenOptions={{
+              headerShown: false,
+            }}
+          />
+        </PaperProvider>
+      </QueryClientProvider>
+      <StatusBar style="auto" />
     </>
   );
 }
