@@ -6,101 +6,98 @@ import {
   useTheme,
   Searchbar,
   ActivityIndicator,
+  SegmentedButtons,
 } from "react-native-paper";
-import { StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { Link, Stack } from "expo-router";
 import { CustomHeader } from "../components/CustomHeader";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getCities } from "../api/weather";
 import { useDebounce } from "../hooks/useDebounce";
+import { useAtom } from "jotai/react";
+import { cityAtom } from "../store/root";
+import { CitySearchbar } from "../components/CitySearchbar";
+import { City } from "../api/types";
+import { WeatherSection } from "../components/WeatherSection";
+import { useContrast } from "../context/ContrastContext";
+import {
+  SafeAreaView,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 export default function Page() {
-  const [city, setCity] = useState("Warszawa");
-  const debouncedCity = useDebounce(city, 500);
+  const [query, setQuery] = useState("");
+  const [city, setCity] = useState<City>();
+
+  const debouncedQuery = useDebounce(query, 500);
+
+  const { bottom } = useSafeAreaInsets();
+  const { colors, contrastMode, setContrastMode } = useContrast();
   const theme = useTheme();
 
-  const cityQuery = useQuery(
-    ["cities", debouncedCity],
-    () => getCities(debouncedCity),
+  const cityListQuery = useQuery(
+    ["cities", debouncedQuery],
+    () => getCities(query),
     {
-      enabled: city !== "",
+      enabled: debouncedQuery.length > 2,
     },
   );
-
-  const handleCityChange = (city: string) => {
-    setCity(city);
-  };
-
-  console.log(cityQuery?.data?.results);
 
   return (
     <View
       style={{
         flex: 1,
-        backgroundColor: theme.colors.background,
+        backgroundColor: colors.background,
+        paddingBottom: bottom + 12,
       }}
     >
-      <CustomHeader city={city} onCityChange={handleCityChange} />
+      <CustomHeader
+        city={city?.name}
+        onChange={(c) => {
+          setQuery(c);
+        }}
+        onSubmit={(c) => {
+          setCity(c);
+        }}
+        cityHints={cityListQuery.data?.results ?? []}
+      />
 
-      <View style={styles.container}>
-        <Searchbar
-          loading={cityQuery.isLoading}
-          placeholder="Miasto..."
-          value={city}
-          onChangeText={setCity}
+      {city && (
+        <WeatherSection longitude={city?.longitude} latitude={city?.latitude} />
+      )}
+      <View
+        style={{
+          marginTop: "auto",
+          paddingHorizontal: 24,
+          gap: 12,
+          flexDirection: "row",
+          alignItems: "center",
+        }}
+      >
+        <SegmentedButtons
+          value={contrastMode}
+          onValueChange={setContrastMode}
+          buttons={[
+            {
+              label: "Normalny",
+              value: "normal",
+              uncheckedColor: colors.text,
+            },
+            {
+              label: "Wysoki",
+              value: "high",
+              style: {
+                backgroundColor:
+                  contrastMode === "high" ? colors.navbar : "transparent",
+              },
+            },
+          ]}
           style={{
-            alignSelf: "stretch",
+            flex: 1,
           }}
-        ></Searchbar>
-
-        {cityQuery.isLoading
-          ? null
-          : cityQuery?.data?.results?.map(({ id, name, country }) => {
-              return (
-                <Surface
-                  key={id}
-                  elevation={0}
-                  style={{
-                    paddingHorizontal: 16,
-                    paddingVertical: 16,
-                    marginVertical: 8,
-                    borderRadius: 8,
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontWeight: "700",
-                      fontSize: 24,
-                    }}
-                  >
-                    {name}
-                  </Text>
-                  <Text
-                    style={{
-                      fontWeight: "500",
-                      fontSize: 16,
-                      color: theme.colors.onSurfaceVariant,
-                    }}
-                  >
-                    {country}
-                  </Text>
-                </Surface>
-              );
-            })}
+        />
       </View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 24,
-  },
-  cityName: {
-    marginTop: 24,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-});

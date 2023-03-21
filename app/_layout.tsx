@@ -4,6 +4,7 @@ import { CustomHeader } from "../components/CustomHeader";
 import { StatusBar } from "expo-status-bar";
 import { QueryClient } from "@tanstack/react-query";
 import { QueryClientProvider } from "@tanstack/react-query/build/lib/QueryClientProvider";
+import { ContrastProvider } from "../context/ContrastContext";
 
 const queryClient = new QueryClient();
 
@@ -12,11 +13,13 @@ export default function Layout() {
     <>
       <QueryClientProvider client={queryClient}>
         <PaperProvider>
-          <Stack
-            screenOptions={{
-              headerShown: false,
-            }}
-          />
+          <ContrastProvider>
+            <Stack
+              screenOptions={{
+                headerShown: false,
+              }}
+            />
+          </ContrastProvider>
         </PaperProvider>
       </QueryClientProvider>
       <StatusBar style="auto" />
