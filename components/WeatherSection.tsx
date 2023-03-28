@@ -16,7 +16,7 @@ type Props = Pick<City, "longitude" | "latitude">;
 
 export const WeatherSection = ({ longitude, latitude }: Props) => {
   const theme = useTheme();
-  const { colors } = useContrast();
+  const { colors, contrastMode } = useContrast();
 
   const weatherQuery = useQuery(
     ["weather", { longitude, latitude }],
@@ -95,7 +95,7 @@ export const WeatherSection = ({ longitude, latitude }: Props) => {
           >
             <Text
               style={{
-                fontSize: 16,
+                fontSize: contrastMode === "normal" ? 16 : 18,
                 fontWeight: "700",
                 color: theme.colors.onSecondaryContainer,
               }}
@@ -112,7 +112,7 @@ export const WeatherSection = ({ longitude, latitude }: Props) => {
           </View>
           <Text
             style={{
-              fontSize: 16,
+              fontSize: contrastMode === "normal" ? 16 : 20,
               fontWeight: "700",
               color: colors.text,
             }}
@@ -127,7 +127,7 @@ export const WeatherSection = ({ longitude, latitude }: Props) => {
               color: colors.text,
             }}
           >
-            {currentWeather.temperature.toFixed(0)}&deg;
+            {currentWeather.temperature.toFixed(0)}&deg;C
           </Text>
 
           <View
@@ -167,9 +167,9 @@ export const WeatherSection = ({ longitude, latitude }: Props) => {
 
           <Text
             style={{
-              fontSize: 18,
+              fontSize: contrastMode === "normal" ? 18 : 24,
               alignSelf: "flex-start",
-              textAlign: "justify",
+              textAlign: contrastMode === "normal" ? "justify" : "left",
               color: colors.text,
             }}
           >
@@ -234,7 +234,7 @@ const DetailsRowItem = ({
       <Icon name={icon} size={32} />
       <Text
         style={{
-          fontSize: 18,
+          fontSize: contrastMode === "normal" ? 18 : 16,
           fontWeight: "700",
         }}
       >
@@ -242,7 +242,7 @@ const DetailsRowItem = ({
       </Text>
       <Text
         style={{
-          fontSize: contrastMode === "normal" ? 12 : 14,
+          fontSize: contrastMode === "normal" ? 12 : 16,
           fontWeight: contrastMode === "normal" ? "500" : "700",
         }}
       >
